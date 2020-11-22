@@ -7,8 +7,6 @@ import javax.validation.constraints.*;
 @Data
 public class MovieDto
 {
-    private String id;
-
     @NotBlank
     private String imdbId;
 

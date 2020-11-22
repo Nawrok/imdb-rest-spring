@@ -1,25 +1,26 @@
 package pl.nbd.imdb.service;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import pl.nbd.imdb.mapper.MovieMapper;
 import pl.nbd.imdb.model.Movie;
 import pl.nbd.imdb.model.MovieDto;
 import pl.nbd.imdb.repository.MovieRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService
 {
     private final MovieRepository movieRepository;
+    private final MovieMapper movieMapper;
 
-    @Autowired
-    public MovieService(MovieRepository movieRepository)
+    public MovieService(MovieRepository movieRepository, MovieMapper movieMapper)
     {
         this.movieRepository = movieRepository;
+        this.movieMapper = movieMapper;
     }
 
     public Optional<MovieDto> addMovie(MovieDto movieDto)
@@ -29,28 +30,28 @@ public class MovieService
         {
             return Optional.empty();
         }
-        Movie movie = movieRepository.save(convertFromDto(movieDto));
-        return Optional.of(convertToDto(movie));
+        Movie movie = movieRepository.save(movieMapper.mapToMovie(movieDto));
+        return Optional.of(movieMapper.mapToMovieDto(movie));
     }
 
-    public Optional<MovieDto> findMovieByImdbId(String imdbId)
+    public Optional<MovieDto> findByImdbId(String imdbId)
     {
-        return movieRepository.findByImdbId(imdbId).map(this::convertToDto);
+        return movieRepository.findByImdbId(imdbId).map(movieMapper::mapToMovieDto);
     }
 
-    public Slice<MovieDto> findByAverageRatingBetween(double minRating, double maxRating, Pageable pageable)
+    public List<MovieDto> findByAverageRatingBetween(double minRating, double maxRating, Pageable pageable)
     {
-        return movieRepository.findByAverageRatingBetween(minRating, maxRating, pageable).map(this::convertToDto);
+        return movieRepository.findByAverageRatingBetween(minRating, maxRating, pageable).stream().map(movieMapper::mapToMovieDto).collect(Collectors.toList());
     }
 
-    public Slice<MovieDto> findByStartYear(int startYear, Pageable pageable)
+    public List<MovieDto> findByStartYear(int startYear, Pageable pageable)
     {
-        return movieRepository.findByStartYear(startYear, pageable).map(this::convertToDto);
+        return movieRepository.findByStartYear(startYear, pageable).stream().map(movieMapper::mapToMovieDto).collect(Collectors.toList());
     }
 
-    public Slice<MovieDto> getAll(Pageable pageable)
+    public List<MovieDto> getAll(Pageable pageable)
     {
-        return movieRepository.findAll(pageable).map(this::convertToDto);
+        return movieRepository.findAllBy(pageable).stream().map(movieMapper::mapToMovieDto).collect(Collectors.toList());
     }
 
     public Optional<MovieDto> updateMovie(MovieDto movieDto)
@@ -58,8 +59,8 @@ public class MovieService
         Optional<Movie> optional = movieRepository.findByImdbId(movieDto.getImdbId());
         if (optional.isPresent())
         {
-            Movie movie = movieRepository.save(convertFromDto(movieDto));
-            return Optional.of(convertToDto(movie));
+            Movie movie = movieRepository.save(movieMapper.mapToMovie(movieDto));
+            return Optional.of(movieMapper.mapToMovieDto(movie));
         }
         return Optional.empty();
     }
@@ -76,17 +77,5 @@ public class MovieService
         return false;
     }
 
-    private MovieDto convertToDto(Movie movie)
-    {
-        MovieDto dto = new MovieDto();
-        BeanUtils.copyProperties(movie, dto);
-        return dto;
-    }
 
-    private Movie convertFromDto(MovieDto dto)
-    {
-        Movie movie = new Movie();
-        BeanUtils.copyProperties(dto, movie);
-        return movie;
-    }
 }

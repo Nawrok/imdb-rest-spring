@@ -1,6 +1,5 @@
 package pl.nbd.imdb.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ public class MovieController
 {
     private final MovieService movieService;
 
-    @Autowired
     public MovieController(MovieService movieService)
     {
         this.movieService = movieService;
@@ -35,31 +33,31 @@ public class MovieController
     @GetMapping("/movie/{imdbId}")
     public MovieDto getMovieByImdbId(@PathVariable String imdbId)
     {
-        return movieService.findMovieByImdbId(imdbId).orElseThrow(() -> new MovieNotFoundException(imdbId));
+        return movieService.findByImdbId(imdbId).orElseThrow(() -> new MovieNotFoundException(imdbId));
     }
 
     @GetMapping("/movies/all")
     public List<MovieDto> getAllMovies()
     {
-        return movieService.getAll(Pageable.unpaged()).getContent();
+        return movieService.getAll(Pageable.unpaged());
     }
 
     @GetMapping("/movies")
     public List<MovieDto> getAllMovies(Pageable pageable)
     {
-        return movieService.getAll(pageable).getContent();
+        return movieService.getAll(pageable);
     }
 
     @GetMapping("/movies/rating")
     public List<MovieDto> getByAverageRatingBetween(@RequestParam(defaultValue = "0") double min, @RequestParam(defaultValue = "10") double max, Pageable pageable)
     {
-        return movieService.findByAverageRatingBetween(min, max, pageable).getContent();
+        return movieService.findByAverageRatingBetween(min, max, pageable);
     }
 
     @GetMapping("/movies/year/{year}")
     public List<MovieDto> getMovieByStartYear(@PathVariable int year, Pageable pageable)
     {
-        return movieService.findByStartYear(year, pageable).getContent();
+        return movieService.findByStartYear(year, pageable);
     }
 
     @PutMapping("/movie/update")
@@ -75,7 +73,7 @@ public class MovieController
         boolean isDeleted = movieService.deleteMovieById(imdbId);
         if (isDeleted)
         {
-            return new ResponseEntity<>(imdbId, HttpStatus.OK);
+            return new ResponseEntity<>("Deleted movie: " + imdbId, HttpStatus.OK);
         }
         throw new MovieNotFoundException(imdbId);
     }
