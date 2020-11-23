@@ -10,6 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.starter.version>2.4.0</spring.starter.version>
         <lombok.version>1.18.16</lombok.version>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>

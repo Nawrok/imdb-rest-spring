@@ -1,7 +1,10 @@
 package pl.nbd.imdb.service;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import pl.nbd.imdb.exception.MovieDuplicateException;
+import pl.nbd.imdb.exception.MovieNotFoundException;
 import pl.nbd.imdb.mapper.MovieMapper;
 import pl.nbd.imdb.model.Movie;
 import pl.nbd.imdb.model.MovieDto;
@@ -23,25 +26,20 @@ public class MovieService
         this.movieMapper = movieMapper;
     }
 
-    public Optional<MovieDto> addMovie(MovieDto movieDto)
+    public MovieDto addMovie(MovieDto movieDto)
     {
         Optional<Movie> optional = movieRepository.findByImdbId(movieDto.getImdbId());
         if (optional.isPresent())
         {
-            return Optional.empty();
+            throw new MovieDuplicateException(movieDto.getImdbId());
         }
         Movie movie = movieRepository.save(movieMapper.mapToMovie(movieDto));
-        return Optional.of(movieMapper.mapToMovieDto(movie));
+        return movieMapper.mapToMovieDto(movie);
     }
 
     public Optional<MovieDto> findByImdbId(String imdbId)
     {
         return movieRepository.findByImdbId(imdbId).map(movieMapper::mapToMovieDto);
-    }
-
-    public List<MovieDto> findByAverageRatingBetween(double minRating, double maxRating, Pageable pageable)
-    {
-        return movieRepository.findByAverageRatingBetween(minRating, maxRating, pageable).stream().map(movieMapper::mapToMovieDto).collect(Collectors.toList());
     }
 
     public List<MovieDto> findByStartYear(int startYear, Pageable pageable)
@@ -54,28 +52,34 @@ public class MovieService
         return movieRepository.findAllBy(pageable).stream().map(movieMapper::mapToMovieDto).collect(Collectors.toList());
     }
 
-    public Optional<MovieDto> updateMovie(MovieDto movieDto)
+    public MovieDto updateMovie(String imdbId, MovieDto movieDto)
     {
-        Optional<Movie> optional = movieRepository.findByImdbId(movieDto.getImdbId());
+        Optional<Movie> optional = movieRepository.findByImdbId(imdbId);
         if (optional.isPresent())
         {
-            Movie movie = movieRepository.save(movieMapper.mapToMovie(movieDto));
-            return Optional.of(movieMapper.mapToMovieDto(movie));
+            movieDto.setImdbId(imdbId);
+            try
+            {
+                Movie movie = movieRepository.save(movieMapper.mapToMovie(movieDto));
+                return movieMapper.mapToMovieDto(movie);
+            }
+            catch (DuplicateKeyException ex)
+            {
+                throw new MovieDuplicateException(imdbId);
+            }
         }
-        return Optional.empty();
+        throw new MovieNotFoundException(imdbId);
     }
 
-    public boolean deleteMovieById(String imdbId)
+    public void deleteMovie(String imdbId)
     {
         Optional<Movie> optional = movieRepository.findByImdbId(imdbId);
         if (optional.isPresent())
         {
             Movie movie = optional.get();
             movieRepository.delete(movie);
-            return true;
+            return;
         }
-        return false;
+        throw new MovieNotFoundException(imdbId);
     }
-
-
 }
