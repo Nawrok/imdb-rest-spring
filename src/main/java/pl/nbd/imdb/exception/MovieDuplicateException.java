@@ -2,8 +2,8 @@ package pl.nbd.imdb.exception;
 
 public class MovieDuplicateException extends RuntimeException
 {
-    public MovieDuplicateException(String imdbId)
+    public MovieDuplicateException(String id)
     {
-        super("Duplicate of movie: " + imdbId);
+        super("Duplicate of movie: " + id);
     }
 }

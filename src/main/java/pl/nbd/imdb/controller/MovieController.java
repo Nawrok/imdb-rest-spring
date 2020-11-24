@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.nbd.imdb.exception.MovieNotFoundException;
 import pl.nbd.imdb.model.MovieDto;
 import pl.nbd.imdb.service.MovieService;
 
@@ -31,7 +30,7 @@ public class MovieController
     @GetMapping("/movie/{imdbId}")
     public MovieDto getMovieByImdbId(@PathVariable String imdbId)
     {
-        return movieService.findByImdbId(imdbId).orElseThrow(() -> new MovieNotFoundException(imdbId));
+        return movieService.getByImdbId(imdbId);
     }
 
     @GetMapping("/movies")
@@ -47,9 +46,10 @@ public class MovieController
     }
 
     @PutMapping("/movie/{imdbId}")
-    public MovieDto updateMovie(@PathVariable String imdbId, @RequestBody @Valid MovieDto movieDto)
+    public MovieDto updateMovie(@PathVariable String imdbId, @RequestBody MovieDto movieDto)
     {
-        return movieService.updateMovie(imdbId, movieDto);
+        movieDto.setImdbId(imdbId);
+        return movieService.updateMovie(movieDto);
     }
 
     @DeleteMapping("/movie/{imdbId}")
