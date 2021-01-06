@@ -11,7 +11,7 @@ public class MovieDuplicateAdvice
 {
     @ResponseBody
     @ExceptionHandler(MovieDuplicateException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public String handler(MovieDuplicateException exception)
     {
         return exception.getMessage();

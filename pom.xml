@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.starter.version>2.4.0</spring.starter.version>
+        <spring.starter.version>2.4.1</spring.starter.version>
         <lombok.version>1.18.16</lombok.version>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
     </properties>
@@ -47,11 +47,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.starter.version}</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
