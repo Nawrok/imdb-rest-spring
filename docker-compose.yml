@@ -17,6 +17,8 @@ services:
     image: mongo:4.4.3
     hostname: mongo2
     container_name: mongo2
+    depends_on:
+      - mongo1
     ports:
       - 30002:27017
     networks:
@@ -27,6 +29,8 @@ services:
     image: mongo:4.4.3
     hostname: mongo3
     container_name: mongo3
+    depends_on:
+      - mongo2
     ports:
       - 30003:27017
     networks:
@@ -36,15 +40,12 @@ services:
   mongosetup:
     image: mongo:4.4.3
     container_name: mongosetup
-    networks:
-      - imdb
     depends_on:
-      - mongo1
-      - mongo2
       - mongo3
-    restart: "no"
     volumes:
       - ./scripts:/scripts
+    networks:
+      - imdb
     entrypoint: [ "/scripts/mongo-cluster-setup.sh" ]
 
   imdb-rest-api:
